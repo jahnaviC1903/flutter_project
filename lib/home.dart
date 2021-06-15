@@ -1,8 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+// ignore: unused_import
 import 'screens/google_map_screen.dart';
 
 class HomePage extends StatefulWidget {
@@ -11,7 +11,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  TextEditingController _addItemController = TextEditingController();
   DocumentReference linkRef;
   List<String> videoID = [];
   bool showItem = false;
@@ -23,7 +22,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: !searchState?Text('Youtube Player'):
+        title: !searchState?Text('Store Video'):
                             TextField(
                               decoration:InputDecoration(
                                 icon: Icon(Icons.search),
@@ -49,52 +48,7 @@ class _HomePageState extends State<HomePage> {
         ),
       body: Column(
         children: [
-          Container(
-            margin: EdgeInsets.symmetric(horizontal: 8),
-            child: TextField(
-              controller: _addItemController,
-              onEditingComplete: () {
-                if (utube.hasMatch(_addItemController.text)) {
-                  _addItemFuntion();
-                } else {
-                  FocusScope.of(this.context).unfocus();
-                  _addItemController.clear();
-                  Flushbar(
-                    title: 'Invalid Link',
-                    message: 'Please provide a valid link',
-                    duration: Duration(seconds: 3),
-                    icon: Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                    ),
-                  )..show(context);
-                }
-              },
-              style: TextStyle(fontSize: 16),
-              decoration: InputDecoration(
-                  labelText: 'Your Video URL',
-                  suffixIcon: GestureDetector(
-                    child: Icon(Icons.add, size: 32),
-                    onTap: () {
-                      if (utube.hasMatch(_addItemController.text)) {
-                        _addItemFuntion();
-                      } else {
-                        FocusScope.of(this.context).unfocus();
-                        _addItemController.clear();
-                        Flushbar(
-                          title: 'Invalid Link',
-                          message: 'Please provide a valid link',
-                          duration: Duration(seconds: 3),
-                          icon: Icon(
-                            Icons.error_outline,
-                            color: Colors.red,
-                          ),
-                        )..show(context);
-                      }
-                    },
-                  )),
-            ),
-          ),
+          
           Flexible(
               child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 4),
@@ -134,23 +88,6 @@ class _HomePageState extends State<HomePage> {
     print(videoID);
   }
 
-  _addItemFuntion() async {
-    await linkRef.set({
-      _addItemController.text.toString(): _addItemController.text.toString()
-    }, SetOptions(merge: true));
-    Flushbar(
-        title: 'Added',
-        message: 'updating...',
-        duration: Duration(seconds: 3),
-        icon: Icon(Icons.info_outline))
-      ..show(context);
-    setState(() {
-      videoID.add(_addItemController.text);
-    });
-    print('added');
-    FocusScope.of(this.context).unfocus();
-    _addItemController.clear();
-  }
 
   getData() async {
     await linkRef
