@@ -1,3 +1,4 @@
+
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
@@ -11,6 +12,14 @@ class AddPage extends StatefulWidget {
 
 class _AddPageState extends State<AddPage> {
   TextEditingController _addItemController = TextEditingController();
+  // ignore: unused_field
+  TextEditingController _addNewStoreName = TextEditingController();
+  // ignore: unused_field
+  TextEditingController _addLocation = TextEditingController();
+  // ignore: unused_field
+  TextEditingController _addProduct = TextEditingController();
+  // ignore: unused_field
+  TextEditingController _addPrice = TextEditingController();
   DocumentReference linkRef;
   List<String> videoID = [];
   bool showItem = false;
@@ -18,6 +27,8 @@ class _AddPageState extends State<AddPage> {
 
   final utube =
       RegExp(r"^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.?be)\/.+$");
+
+  get column => null;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -50,7 +61,9 @@ class _AddPageState extends State<AddPage> {
         children: [
           Container(
             margin: EdgeInsets.symmetric(horizontal: 8),
-            child: TextField(
+            child: column(
+              children:[
+            TextField(
               controller: _addItemController,
               onEditingComplete: () {
                 if (utube.hasMatch(_addItemController.text)) {
@@ -93,6 +106,43 @@ class _AddPageState extends State<AddPage> {
                     },
                   )),
             ),
+            TextField(
+                  controller: _addNewStoreName,
+                  style: TextStyle(fontSize: 16),
+                  decoration: InputDecoration(
+                      labelText: 'Store Name',
+                      ),),
+                            TextField(
+                    controller: _addLocation,
+                  style: TextStyle(fontSize: 16),
+                  decoration: InputDecoration(
+                      labelText: 'Location',
+                      ),),
+                 TextField(
+                    controller: _addProduct,
+                  style: TextStyle(fontSize: 16),
+                  decoration: InputDecoration(
+                      labelText: 'Product sold',
+                    ),),
+                 TextField(
+                    controller: _addPrice,
+                  style: TextStyle(fontSize: 16),
+                  decoration: InputDecoration(
+                      labelText: 'Price',
+                      ),),
+                ElevatedButton(
+                     onPressed:(){
+                      
+                    Map <String,dynamic> data= { "url":_addItemController,"store":_addNewStoreName,"location":_addLocation ,"product":_addProduct,"price":_addPrice};
+                    FirebaseFirestore.instance.collection("shop").add(data);
+                     },
+                     child: Text("Submit"),
+                ), 
+           
+              ]
+            
+            ),
+          
           ),
           
         ],
@@ -141,3 +191,7 @@ class _AddPageState extends State<AddPage> {
             }));
   }
 }
+
+
+
+
