@@ -12,14 +12,11 @@ class AddPage extends StatefulWidget {
 
 class _AddPageState extends State<AddPage> {
   TextEditingController _addItemController = TextEditingController();
-  // ignore: unused_field
   TextEditingController _addNewStoreName = TextEditingController();
-  // ignore: unused_field
-  TextEditingController _addLocation = TextEditingController();
-  // ignore: unused_field
-  TextEditingController _addProduct = TextEditingController();
-  // ignore: unused_field
-  TextEditingController _addPrice = TextEditingController();
+    TextEditingController _addLocation = TextEditingController();
+    TextEditingController _addPrice = TextEditingController();
+    TextEditingController _addProduct = TextEditingController();
+
   DocumentReference linkRef;
   List<String> videoID = [];
   bool showItem = false;
@@ -27,8 +24,6 @@ class _AddPageState extends State<AddPage> {
 
   final utube =
       RegExp(r"^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.?be)\/.+$");
-
-  get column => null;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,7 +36,7 @@ class _AddPageState extends State<AddPage> {
                                 hintStyle: TextStyle(color: Colors.white),
                                ),
                             ),
-        backgroundColor: Colors.redAccent,
+        backgroundColor: Colors.cyan[900],
         actions: <Widget>[
           !searchState?IconButton(icon: Icon(Icons.search,color: Colors.white,), onPressed: (){
             setState(() {
@@ -61,64 +56,65 @@ class _AddPageState extends State<AddPage> {
         children: [
           Container(
             margin: EdgeInsets.symmetric(horizontal: 8),
-            child: column(
-              children:[
-            TextField(
-              controller: _addItemController,
-              onEditingComplete: () {
-                if (utube.hasMatch(_addItemController.text)) {
-                  _addItemFuntion();
-                } else {
-                  FocusScope.of(this.context).unfocus();
-                  _addItemController.clear();
-                  Flushbar(
-                    title: 'Invalid Link',
-                    message: 'Please provide a valid link',
-                    duration: Duration(seconds: 3),
-                    icon: Icon(
-                      Icons.error_outline,
-                      color: Colors.red,
-                    ),
-                  )..show(context);
-                }
-              },
-              style: TextStyle(fontSize: 16),
-              decoration: InputDecoration(
-                  labelText: 'Your Video URL',
-                  suffixIcon: GestureDetector(
-                    child: Icon(Icons.add, size: 32),
-                    onTap: () {
-                      if (utube.hasMatch(_addItemController.text)) {
-                        _addItemFuntion();
-                      } else {
-                        FocusScope.of(this.context).unfocus();
-                        _addItemController.clear();
-                        Flushbar(
-                          title: 'Invalid Link',
-                          message: 'Please provide a valid link',
-                          duration: Duration(seconds: 3),
-                          icon: Icon(
-                            Icons.error_outline,
-                            color: Colors.red,
-                          ),
-                        )..show(context);
-                      }
-                    },
-                  )),
-            ),
-            TextField(
+            child: Column(
+              children: [
+                TextField(
+                  controller: _addItemController,
+                  onEditingComplete: () {
+                    if (utube.hasMatch(_addItemController.text)) {
+                      _addItemFuntion();
+                    } else {
+                      FocusScope.of(this.context).unfocus();
+                      _addItemController.clear();
+                      Flushbar(
+                        title: 'Invalid Link',
+                        message: 'Please provide a valid link',
+                        duration: Duration(seconds: 3),
+                        icon: Icon(
+                          Icons.error_outline,
+                          color: Colors.red,
+                        ),
+                      )..show(context);
+                    }
+                  },
+                  style: TextStyle(fontSize: 16),
+                  decoration: InputDecoration(
+                      labelText: 'Your Video URL',
+                      suffixIcon: GestureDetector(
+                        child: Icon(Icons.add, size: 32),
+                        onTap: () {
+                          if (utube.hasMatch(_addItemController.text)) {
+                            _addItemFuntion();
+                          } else {
+                            FocusScope.of(this.context).unfocus();
+                            _addItemController.clear();
+                            Flushbar(
+                              title: 'Invalid Link',
+                              message: 'Please provide a valid link',
+                              duration: Duration(seconds: 3),
+                              icon: Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                              ),
+                            )..show(context);
+                          }
+                        },
+                      )),
+                ),
+                TextField(
                   controller: _addNewStoreName,
                   style: TextStyle(fontSize: 16),
                   decoration: InputDecoration(
                       labelText: 'Store Name',
-                      ),),
-                            TextField(
+                      ),
+                ),
+                 TextField(
                     controller: _addLocation,
                   style: TextStyle(fontSize: 16),
                   decoration: InputDecoration(
                       labelText: 'Location',
                       ),),
-                 TextField(
+                       TextField(
                     controller: _addProduct,
                   style: TextStyle(fontSize: 16),
                   decoration: InputDecoration(
@@ -130,7 +126,7 @@ class _AddPageState extends State<AddPage> {
                   decoration: InputDecoration(
                       labelText: 'Price',
                       ),),
-                ElevatedButton(
+                       ElevatedButton(
                      onPressed:(){
                       
                     Map <String,dynamic> data= { "url":_addItemController,"store":_addNewStoreName,"location":_addLocation ,"product":_addProduct,"price":_addPrice};
@@ -138,11 +134,9 @@ class _AddPageState extends State<AddPage> {
                      },
                      child: Text("Submit"),
                 ), 
-           
-              ]
-            
+              ],
             ),
-          
+            
           ),
           
         ],
@@ -191,7 +185,5 @@ class _AddPageState extends State<AddPage> {
             }));
   }
 }
-
-
 
 
