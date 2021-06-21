@@ -2,8 +2,9 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
+
 // ignore: unused_import
-import 'screens/google_map_screen.dart';
+
 
 class HomePage extends StatefulWidget {
   @override
@@ -11,11 +12,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  DocumentReference linkRef;
-  List<String> videoID = [];
+  
   bool showItem = false;
   bool searchState = false;
-
+  final String uid;
+  _HomePageState({this.uid});
+  final  CollectionReference shopid = FirebaseFirestore.instance.collection('shop');
   final utube =
       RegExp(r"^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.?be)\/.+$");
   @override
@@ -53,13 +55,13 @@ class _HomePageState extends State<HomePage> {
               child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 4),
                   child: ListView.builder(
-                      itemCount: videoID.length,
+                      itemCount: shop.length,
                       itemBuilder: (context, index) => Container(
                             margin: EdgeInsets.all(8),
                             child: YoutubePlayer(
                               controller: YoutubePlayerController(
                                   initialVideoId: YoutubePlayer.convertUrlToId(
-                                      videoID[index]),
+                                      shop[index]),
                                   flags: YoutubePlayerFlags(
                                     autoPlay: false,
                                   )),
@@ -72,33 +74,28 @@ class _HomePageState extends State<HomePage> {
                           )))),
         ],
       ),
-      floatingActionButton: FloatingActionButton(
-          onPressed: () => Navigator.push(context,MaterialPageRoute(builder: (context) => GoogleMapScreen(),),),
-          tooltip: 'Google Map',
-          child: Icon(Icons.pin_drop_outlined),
-      ),
+      
     );
   }
 
   @override
   void initState() {
-    linkRef = FirebaseFirestore.instance.collection('links').doc('urls');
     super.initState();
     getData();
-    print(videoID);
+    print(shop.url);
   }
 
 
   getData() async {
-    await linkRef
+    await shopid
         .get()
-        .then((value) => value.data()?.forEach((key, value) {
-              if (!videoID.contains(value)) {
-                videoID.add(value);
+        .then((value) => value.shop()?.forEach((key, value) {
+              if (!shop.url.contains(value)) {
+                shop.url.add(value);
               }
             }))
         .whenComplete(() => setState(() {
-              videoID.shuffle();
+              shop.url.shuffle();
               showItem = true;
             }));
   }
