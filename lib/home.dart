@@ -1,9 +1,8 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flushbar/flushbar.dart';
 import 'package:flutter/material.dart';
 import 'package:youtube_player_flutter/youtube_player_flutter.dart';
 
-
-// ignore: unused_import
 
 
 class HomePage extends StatefulWidget {
@@ -12,19 +11,19 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  
+  TextEditingController _addItemController = TextEditingController();
+  DocumentReference linkRef;
+  List<String> videoID = [];
   bool showItem = false;
   bool searchState = false;
-  final String uid;
-  _HomePageState({this.uid});
-  final  CollectionReference shopid = FirebaseFirestore.instance.collection('shop');
+
   final utube =
       RegExp(r"^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.?be)\/.+$");
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: !searchState?Text('Store Video'):
+        title: !searchState?Text('Youtube Player'):
                             TextField(
                               decoration:InputDecoration(
                                 icon: Icon(Icons.search),
@@ -50,18 +49,63 @@ class _HomePageState extends State<HomePage> {
         ),
       body: Column(
         children: [
-          
+          Container(
+            margin: EdgeInsets.symmetric(horizontal: 8),
+            child: TextField(
+              controller: _addItemController,
+              onEditingComplete: () {
+                if (utube.hasMatch(_addItemController.text)) {
+                  _addItemFuntion();
+                } else {
+                  FocusScope.of(this.context).unfocus();
+                  _addItemController.clear();
+                  Flushbar(
+                    title: 'Invalid Link',
+                    message: 'Please provide a valid link',
+                    duration: Duration(seconds: 3),
+                    icon: Icon(
+                      Icons.error_outline,
+                      color: Colors.red,
+                    ),
+                  )..show(context);
+                }
+              },
+              style: TextStyle(fontSize: 16),
+              decoration: InputDecoration(
+                  labelText: 'Your Video URL',
+                  suffixIcon: GestureDetector(
+                    child: Icon(Icons.add, size: 32),
+                    onTap: () {
+                      if (utube.hasMatch(_addItemController.text)) {
+                        _addItemFuntion();
+                      } else {
+                        FocusScope.of(this.context).unfocus();
+                        _addItemController.clear();
+                        Flushbar(
+                          title: 'Invalid Link',
+                          message: 'Please provide a valid link',
+                          duration: Duration(seconds: 3),
+                          icon: Icon(
+                            Icons.error_outline,
+                            color: Colors.red,
+                          ),
+                        )..show(context);
+                      }
+                    },
+                  )),
+            ),
+          ),
           Flexible(
               child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 4),
                   child: ListView.builder(
-                      itemCount: shop.length,
+                      itemCount: videoID.length,
                       itemBuilder: (context, index) => Container(
                             margin: EdgeInsets.all(8),
                             child: YoutubePlayer(
                               controller: YoutubePlayerController(
                                   initialVideoId: YoutubePlayer.convertUrlToId(
-                                      shop[index]),
+                                      videoID[index]),
                                   flags: YoutubePlayerFlags(
                                     autoPlay: false,
                                   )),
@@ -74,28 +118,46 @@ class _HomePageState extends State<HomePage> {
                           )))),
         ],
       ),
-      
+    
     );
   }
 
   @override
   void initState() {
+    linkRef = FirebaseFirestore.instance.collection('links').doc('urls');
     super.initState();
     getData();
-    print(shop.url);
+    print(videoID);
   }
 
+  _addItemFuntion() async {
+    await linkRef.set({
+      _addItemController.text.toString(): _addItemController.text.toString()
+    }, SetOptions(merge: true));
+    Flushbar(
+        title: 'Added',
+        message: 'updating...',
+        duration: Duration(seconds: 3),
+        icon: Icon(Icons.info_outline))
+      ..show(context);
+    setState(() {
+      videoID.add(_addItemController.text);
+    });
+    print('added');
+    FocusScope.of(this.context).unfocus();
+    _addItemController.clear();
+  }
 
   getData() async {
-    await shopid
+    await linkRef
         .get()
-        .then((value) => value.shop()?.forEach((key, value) {
-              if (!shop.url.contains(value)) {
-                shop.url.add(value);
+        .then((value) => value.data()?.forEach((key, value) {
+              if (!videoID.contains(value)) {
+                videoID.add(value);
               }
             }))
         .whenComplete(() => setState(() {
-              shop.url.shuffle();
+              videoID.shuffle();
               showItem = true;
             }));
   }
