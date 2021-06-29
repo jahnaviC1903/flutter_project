@@ -19,7 +19,6 @@ class _AddPageState extends State<AddPage> {
   CollectionReference linkRef;
   List<String> videoID = [];
   bool showItem = false;
-  bool searchState = false;
 
   final utube =
       RegExp(r"^(https?\:\/\/)?((www\.)?youtube\.com|youtu\.?be)\/.+$");
@@ -27,29 +26,9 @@ class _AddPageState extends State<AddPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: !searchState?Text('Youtube Player'):
-                            TextField(
-                              decoration:InputDecoration(
-                                icon: Icon(Icons.search),
-                                hintText: "Search...",
-                                hintStyle: TextStyle(color: Colors.white),
-                               ),
-                            ),
+        title: Text('Youtube Player'),
         backgroundColor: Colors.cyan[900],
-        actions: <Widget>[
-          !searchState?IconButton(icon: Icon(Icons.search,color: Colors.white,), onPressed: (){
-            setState(() {
-              searchState = !searchState;
-            });
-          }
-          ):
-         IconButton(icon: Icon(Icons.cancel,color: Colors.white,), onPressed: (){ 
-           setState((){
-             searchState = !searchState;
-           });
-          }
-         ),
-         ],
+        
         ),
       body: Column(
         children: [
@@ -59,47 +38,11 @@ class _AddPageState extends State<AddPage> {
               children: [
                 TextField(
                   controller: _addItemController,
-                  onEditingComplete: () {
-                    if (utube.hasMatch(_addItemController.text)) {
-                      _addItemFuntion();
-                    } else {
-                      FocusScope.of(this.context).unfocus();
-                      _addItemController.clear();
-                      Flushbar(
-                        title: 'Invalid Link',
-                        message: 'Please provide a valid link',
-                        duration: Duration(seconds: 3),
-                        icon: Icon(
-                          Icons.error_outline,
-                          color: Colors.red,
-                        ),
-                      )..show(context);
-                    }
-                  },
+            
                   style: TextStyle(fontSize: 16),
                   decoration: InputDecoration(
-                      labelText: 'Your Video URL',
-                      suffixIcon: GestureDetector(
-                        child: Icon(Icons.add, size: 32),
-                        onTap: () {
-                          if (utube.hasMatch(_addItemController.text)) {
-                            _addItemFuntion();
-                          } else {
-                            FocusScope.of(this.context).unfocus();
-                            _addItemController.clear();
-                            Flushbar(
-                              title: 'Invalid Link',
-                              message: 'Please provide a valid link',
-                              duration: Duration(seconds: 3),
-                              icon: Icon(
-                                Icons.error_outline,
-                                color: Colors.red,
-                              ),
-                            )..show(context);
-                          }
-                        },
-                      )),
-                ),
+                      labelText: 'url',
+                  ),),
                 TextField(
                   controller: _addNewStoreName,
                   style: TextStyle(fontSize: 16),
@@ -127,9 +70,8 @@ class _AddPageState extends State<AddPage> {
                       ),),
                        ElevatedButton(
                      onPressed:(){
-                      
-                    Map <String,dynamic> data= { "url":_addItemController,"store":_addNewStoreName,"location":_addLocation ,"product":_addProduct,"price":_addPrice};
-                    FirebaseFirestore.instance.collection("shop").add(data);
+                      _addItemFuntion();
+                  
                      },
                      child: Text("Submit"),
                 ), 
@@ -144,18 +86,17 @@ class _AddPageState extends State<AddPage> {
     );
   }
 
-  @override
-  void initState() {
-    linkRef = FirebaseFirestore.instance.collection('shop');
-    super.initState();
-    getData();
-    print(videoID);
-  }
+ 
 
   _addItemFuntion() async {
-    await linkRef.set({
-      _addItemController.text.toString(): _addItemController.text.toString()
-    }, SetOptions(merge: true));
+    await FirebaseFirestore.instance.collection("shop").add({
+      "url": _addItemController.text.toString(),
+      "store":_addNewStoreName.text,
+      "location":_addLocation.text ,
+      "product":_addProduct.text,
+      "price":_addPrice.text
+
+    },);
     Flushbar(
         title: 'Added',
         message: 'updating...',
@@ -170,17 +111,5 @@ class _AddPageState extends State<AddPage> {
     _addItemController.clear();
   }
 
-  getData() async {
-    await linkRef
-        .get()
-        .then((value) => value.data()?.forEach((key, value) {
-              if (!videoID.contains(value)) {
-                videoID.add(value);
-              }
-            }))
-        .whenComplete(() => setState(() {
-              videoID.shuffle();
-              showItem = true;
-            }));
-  }
+
 }
